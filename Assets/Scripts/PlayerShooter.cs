@@ -12,21 +12,29 @@ public class PlayerShooter : MonoBehaviour
 
     public AimState aimState { get; private set; }
 
-    public Gun gun; // 사용할 총
-    public LayerMask excludeTarget;
-    
+    public Gun gun;
+    public LayerMask excludeTarget;//조준에서 제외할 레이어
+
     private PlayerInput playerInput;
-    private Animator playerAnimator; // 애니메이터 컴포넌트
+    private Animator playerAnimator;
     private Camera playerCamera;
-    
+
     private Vector3 aimPoint;
-    private bool linedUp => !(Mathf.Abs( playerCamera.transform.eulerAngles.y - transform.eulerAngles.y) > 1f);
-    private bool hasEnoughDistance => !Physics.Linecast(transform.position + Vector3.up * gun.fireTransform.position.y,gun.fireTransform.position, ~excludeTarget);
-    
+
+    //캐릭터가 바라보는 방향과 카메라가 바라보는 방향 사이에
+    //각도가 너무 벌어졌는지 벌어지지않았는지 반환하는 Property
+    private bool linedUp => !(Mathf.Abs(playerCamera.transform.eulerAngles.y - transform.eulerAngles.y) > 1f);
+
+    //플레이어가 정면에 총을 발사할 수 있을 정도로 넉넉한 공간을 확보했는지 반환하는 Property
+    private bool hasEnoughDistance => !Physics.Linecast(transform.position + Vector3.up * gun.fireTransform.position.y, gun.fireTransform.position, ~excludeTarget);
+
     void Awake()
     {
+        //제외할 레이어에 플레이어 오브젝트의 레이어가 포함되어 있지 않다면 
         if (excludeTarget != (excludeTarget | (1 << gameObject.layer)))
         {
+            //플레이어 게임 오브젝트의 레이어를 excludeTarget에 추가한다
+            //(예외 처리)플레어가 실수로 자신을 쏘는 현상을 방지
             excludeTarget |= 1 << gameObject.layer;
         }
     }
@@ -69,7 +77,7 @@ public class PlayerShooter : MonoBehaviour
         if (angle > 270f) angle -= 360f;
 
         angle = angle / 180f * -1f + 0.5f;
-        
+
         playerAnimator.SetFloat("Angle", angle);
 
         UpdateUI();
@@ -97,13 +105,13 @@ public class PlayerShooter : MonoBehaviour
     public void Reload()
     {
         // 재장전 입력 감지시 재장전
-        if(gun.Reload()) playerAnimator.SetTrigger("Reload");
+        if (gun.Reload()) playerAnimator.SetTrigger("Reload");
     }
 
     private void UpdateAimTarget()
     {
         RaycastHit hit;
-        
+
         var ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 1f));
 
         if (Physics.Raycast(ray, out hit, gun.fireDistance, ~excludeTarget))
@@ -125,10 +133,9 @@ public class PlayerShooter : MonoBehaviour
     private void UpdateUI()
     {
         if (gun == null || UIManager.Instance == null) return;
-        
-        // UI 매니저의 탄약 텍스트에 탄창의 탄약과 남은 전체 탄약을 표시
+
         UIManager.Instance.UpdateAmmoText(gun.magAmmo, gun.ammoRemain);
-        
+
         UIManager.Instance.SetActiveCrosshair(hasEnoughDistance);
         UIManager.Instance.UpdateCrossHairPosition(aimPoint);
     }
@@ -142,9 +149,7 @@ public class PlayerShooter : MonoBehaviour
         playerAnimator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1.0f);
         playerAnimator.SetIKRotationWeight(AvatarIKGoal.LeftHand, 1.0f);
 
-        playerAnimator.SetIKPosition(AvatarIKGoal.LeftHand,
-            gun.leftHandMount.position);
-        playerAnimator.SetIKRotation(AvatarIKGoal.LeftHand,
-            gun.leftHandMount.rotation);
+        playerAnimator.SetIKPosition(AvatarIKGoal.LeftHand, gun.leftHandMount.position);
+        playerAnimator.SetIKRotation(AvatarIKGoal.LeftHand, gun.leftHandMount.rotation);
     }
 }

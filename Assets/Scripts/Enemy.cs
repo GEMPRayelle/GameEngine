@@ -75,7 +75,6 @@ public class Enemy : LivingEntity
         Handles.color = new Color(1f, 1f, 1f, 0.2f);
         Handles.DrawSolidArc(eyeTransform.position, Vector3.up, leftRayDirection, fieldOfView, viewDistance);
     }
-
 #endif
 
     private void Awake()
@@ -95,21 +94,17 @@ public class Enemy : LivingEntity
         agent.speed = patrolSpeed;
     }
 
-    // 적 AI의 초기 스펙을 결정하는 셋업 메서드
-    public void Setup(float health, float damage,
-        float runSpeed, float patrolSpeed, Color skinColor)
+    //좀비 AI의 초기 스펙을 결정
+    public void Setup(float health, float damage, float runSpeed, float patrolSpeed, Color skinColor)
     {
-        // 체력 설정
         this.startingHealth = health;
         this.health = health;
 
-        // 내비메쉬 에이전트의 이동 속도 설정
         this.runSpeed = runSpeed;
         this.patrolSpeed = patrolSpeed;
 
         this.damage = damage;
 
-        // 렌더러가 사용중인 머테리얼의 컬러를 변경, 외형 색이 변함
         skinRenderer.material.color = skinColor;
     }
 
@@ -124,11 +119,12 @@ public class Enemy : LivingEntity
         if (dead) return;
 
         if (state == State.Tracking &&
+            //타겟과의 거리가 공격 사거리안에 들어오면
             Vector3.Distance(targetEntity.transform.position, transform.position) <= attackDistance)
         {
+            //공격시작
             BeginAttack();
         }
-
 
         // 추적 대상의 존재 여부에 따라 다른 애니메이션을 재생
         animator.SetFloat("Speed", agent.desiredVelocity.magnitude);
@@ -138,24 +134,27 @@ public class Enemy : LivingEntity
     {
         if (dead) return;
 
-
         if (state == State.AttackBegin || state == State.Attacking)
         {
             var lookRotation =
                 Quaternion.LookRotation(targetEntity.transform.position - transform.position, Vector3.up);
             var targetAngleY = lookRotation.eulerAngles.y;
 
-            transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngleY,
-                                        ref turnSmoothVelocity, turnSmoothTime);
+            transform.eulerAngles = Vector3.up * Mathf.SmoothDampAngle(
+                transform.eulerAngles.y, targetAngleY, ref turnSmoothVelocity, turnSmoothTime);
         }
 
+        //공격이 들어가고 있는 상태
         if (state == State.Attacking)
         {
+            //좀비가 이동 하고 있는 방향
             var direction = transform.forward;
+            //agent가 시간만큼 이동하는 거리를 계산 = 공격의 궤적
             var deltaDistance = agent.velocity.magnitude * Time.deltaTime;
 
-            var size = Physics.SphereCastNonAlloc(attackRoot.position, attackRadius, direction, hits, deltaDistance,
-                whatIsTarget);
+            //SphereCast는 시작지점에서 어떤 거리만큼 이동할때 연속선상에서 겹치는 collider를 가져온다, Raycast의 hit배열을 반환
+            //nonAlloc은 return값으로 감지된 collider의 개수만 반환한다, 대신 입력으로 직접 Raycast Hit 배열을 할당한다
+            var size = Physics.SphereCastNonAlloc(attackRoot.position, attackRadius, direction, hits, deltaDistance, whatIsTarget);
 
             for (var i = 0; i < size; i++)
             {
@@ -163,6 +162,7 @@ public class Enemy : LivingEntity
 
                 if (attackTargetEntity != null && !lastAttackedTargets.Contains(attackTargetEntity))
                 {
+                    //메세지 전달
                     var message = new DamageMessage();
                     message.amount = damage;
                     message.damager = gameObject;
@@ -178,37 +178,47 @@ public class Enemy : LivingEntity
         }
     }
 
-    // 주기적으로 추적할 대상의 위치를 찾아 경로를 갱신
+    /// <summary> 
+    /// 주기적으로 추적할 대상의 위치를 찾아 경로를 갱신하는 코루틴 함수
+    /// </summary>
     private IEnumerator UpdatePath()
     {
         // 살아있는 동안 무한 루프
         while (!dead)
         {
+            //추적할 타겟이 존재하고
             if (hasTarget)
             {
+                // + 정찰 상태일시
                 if (state == State.Patrol)
                 {
+                    //추적 상태로 바꿈과 동시에 달리는 속도로 agent 속도 갱신
                     state = State.Tracking;
                     agent.speed = runSpeed;
                 }
 
-                // 추적 대상 존재 : 경로를 갱신하고 AI 이동을 계속 진행
+                // 추적 대상 위치를 갱신하여 추적하도록함
                 agent.SetDestination(targetEntity.transform.position);
             }
-            else
+            else//추적 대상이 없으면
             {
+                //대상을 null로 바꿔줘서 정찰하면서 플레이어를 찾게한다
                 if (targetEntity != null) targetEntity = null;
 
+                //정찰 상태가 아니라면
                 if (state != State.Patrol)
                 {
+                    //정찰 상태로 바꿔주고 정찰하는 속도로 속도 갱신
                     state = State.Patrol;
                     agent.speed = patrolSpeed;
                 }
 
+                //정찰중인 상태에서 agent가 목표지점까지 가야할거리가 1m안이라면
                 if (agent.remainingDistance <= 1f)
                 {
+                    //정찰위치를 NavMesh area에서 랜덤한 포지션을 가져온다
                     var patrolPosition = Utility.GetRandomPointOnNavMesh(transform.position, 20f, NavMesh.AllAreas);
-                    agent.SetDestination(patrolPosition);
+                    agent.SetDestination(patrolPosition);//이동할 위치 다시 갱신
                 }
 
                 // 20 유닛의 반지름을 가진 가상의 구를 그렸을때, 구와 겹치는 모든 콜라이더를 가져옴
@@ -218,23 +228,20 @@ public class Enemy : LivingEntity
                 // 모든 콜라이더들을 순회하면서, 살아있는 LivingEntity 찾기
                 foreach (var collider in colliders)
                 {
-                    if (!IsTargetOnSight(collider.transform)) break;
-
+                    //상대가 시야 내에 없다면
+                    if (!IsTargetOnSight(collider.transform)) continue; //다음 회차로 넘어감
+                    //시야 내에 들어왔으면 LivingEntity로서 가져올 수 있는지 검사
                     var livingEntity = collider.GetComponent<LivingEntity>();
 
-                    // LivingEntity 컴포넌트가 존재하며, 해당 LivingEntity가 살아있다면,
+                    // 만약 LivingEntity 컴포넌트가 존재하며, 해당 LivingEntity가 살아있다면
                     if (livingEntity != null && !livingEntity.dead)
                     {
                         // 추적 대상을 해당 LivingEntity로 설정
                         targetEntity = livingEntity;
-
-                        // for문 루프 즉시 정지
                         break;
                     }
                 }
             }
-
-            // 0.2 초 주기로 처리 반복
             yield return new WaitForSeconds(0.2f);
         }
     }
@@ -244,8 +251,9 @@ public class Enemy : LivingEntity
     {
         if (!base.ApplyDamage(damageMessage)) return false;
 
-        if (targetEntity == null)
+        if (targetEntity == null)//추적할 대상을 못 찾았는데 공격을 당할시
         {
+            //타겟대상을 공격한 대상으로 즉시 바꾼다
             targetEntity = damageMessage.damager.GetComponent<LivingEntity>();
         }
 
@@ -255,6 +263,7 @@ public class Enemy : LivingEntity
         return true;
     }
 
+    #region 공격 관련 함수(애니메이션)
     public void BeginAttack()
     {
         state = State.AttackBegin;
@@ -276,45 +285,57 @@ public class Enemy : LivingEntity
 
         agent.isStopped = false;
     }
+    #endregion
 
     private bool IsTargetOnSight(Transform target)
     {
-        RaycastHit hit;
 
+        //타겟의 위치로 향하는 방향벡터
         var direction = target.position - eyeTransform.position;
 
+        //높이차는 고려하지 않음
         direction.y = eyeTransform.forward.y;
 
+        //두 방향벡터 사이의 각도
         if (Vector3.Angle(direction, eyeTransform.forward) > fieldOfView * 0.5f)
         {
-            return false;
+            //눈에서 목표까지 방향과, 눈 앞쪽 방향 사이의 각도가 FOV보다 크다면 
+            return false;//arc에서 벗어나게된다
         }
 
+        //eye과 target사이에 가리는 장애물이 있는지 검사
+        //direction을 원래 값으로 되돌려야한다
+        direction = target.position - eyeTransform.position;
+
+        RaycastHit hit;
+
+        //시야각내에 존재하지만 다른 물체에 중간에 가려져서 보이지않는다면
         if (Physics.Raycast(eyeTransform.position, direction, out hit, viewDistance, whatIsTarget))
         {
-            if (hit.transform == target) return true;
+            //광선에 닿은 물체가 처음 검사했던 상대방이맞다면
+            if (hit.transform == targetEntity)
+            {
+                //상대방과 눈 사이에 장애물이 없어서 상대방이 보이게된다
+                return true;
+            }
         }
-
         return false;
     }
 
-    // 사망 처리
     public override void Die()
     {
-        // LivingEntity의 Die()를 실행하여 기본 사망 처리 실행
+        //기본 사망 처리 실행
         base.Die();
 
         // 다른 AI들을 방해하지 않도록 자신의 모든 콜라이더들을 비활성화
         GetComponent<Collider>().enabled = false;
 
-        // AI 추적을 중지하고 내비메쉬 컴포넌트를 비활성화
+        //AI 추적을 중지
         agent.enabled = false;
 
-        // 사망 애니메이션 재생
         animator.applyRootMotion = true;
         animator.SetTrigger("Die");
 
-        // 사망 효과음 재생
         if (deathClip != null) audioPlayer.PlayOneShot(deathClip);
     }
 }
