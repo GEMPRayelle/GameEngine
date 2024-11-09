@@ -14,7 +14,6 @@ public class PlayerController : MonoBehaviour
     private PlayerMovement playerMovement;
     private PlayerShooter playerShooter;
 
-    // Start is called before the first frame update
     private void Start()
     {
         playerMovement = GetComponent<PlayerMovement>();
@@ -25,7 +24,6 @@ public class PlayerController : MonoBehaviour
 
         //UIManager.Instance.UpdateLifeText(lifeRemains);
         Cursor.visible = false;
-
     }
 
     //사망했을때 다른 컴포넌트들을 제어하기위한 핸들러

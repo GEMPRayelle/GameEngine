@@ -222,7 +222,8 @@ public class Gun : MonoBehaviour
 
     private void Update()
     {
-        currentSpread = Mathf.SmoothDamp(currentSpread, 0f, ref currentSpreadVelocity, 1f / restoreFromRecoilSpeed);
+        //반동 조절
         currentSpread = Mathf.Clamp(currentSpread, 0f, maxSpread);
+        currentSpread = Mathf.SmoothDamp(currentSpread, 0f, ref currentSpreadVelocity, 1f / restoreFromRecoilSpeed);
     }
 }
