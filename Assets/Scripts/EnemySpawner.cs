@@ -77,7 +77,7 @@ public class EnemySpawner : MonoBehaviour
         var enemy = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
 
         // 생성한 적의 능력치와 추적 대상 설정
-        enemy.Setup(health, damage, speed,speed * 0.3f, skinColor);
+        enemy.Setup(health, damage, speed, speed * 0.3f, skinColor);
 
         // 생성된 적을 리스트에 추가
         enemies.Add(enemy);
@@ -87,7 +87,5 @@ public class EnemySpawner : MonoBehaviour
         enemy.OnDeath += () => enemies.Remove(enemy);
         // 사망한 적을 10 초 뒤에 파괴
         enemy.OnDeath += () => Destroy(enemy.gameObject, 10f);
-        // 적 사망시 점수 상승
-        enemy.OnDeath += () => GameManager.Instance.AddScore(100);
     }
 }

@@ -9,57 +9,64 @@ using UnityEditor;
 
 public class Enemy : LivingEntity
 {
+    #region Enemy의 상태를 나타내기 위한 프로퍼티와 열거형
     private enum State
     {
-        Patrol,
-        Tracking,
-        AttackBegin,
-        Attacking
+        Patrol,//정찰
+        Tracking,//추적
+        AttackBegin,//공격시작
+        Attacking//공격중
     }
-    
     private State state;
-    
+    #endregion
+
+    #region 각 컴포넌트 변수들
     private NavMeshAgent agent; // 경로계산 AI 에이전트
     private Animator animator; // 애니메이터 컴포넌트
 
     public Transform attackRoot;
     public Transform eyeTransform;
-    
+
     private AudioSource audioPlayer; // 오디오 소스 컴포넌트
     public AudioClip hitClip; // 피격시 재생할 소리
     public AudioClip deathClip; // 사망시 재생할 소리
-    
-    private Renderer skinRenderer; // 렌더러 컴포넌트
 
+    private Renderer skinRenderer; // 렌더러 컴포넌트
+    #endregion
+
+    #region 좀비의 기본 Status
     public float runSpeed = 10f;
     [Range(0.01f, 2f)] public float turnSmoothTime = 0.1f;
     private float turnSmoothVelocity;
-    
+
     public float damage = 30f;
     public float attackRadius = 2f;
     private float attackDistance;
-    
+
     public float fieldOfView = 50f;
     public float viewDistance = 10f;
     public float patrolSpeed = 3f;
-    
-    [HideInInspector] public LivingEntity targetEntity; // 추적할 대상
-    public LayerMask whatIsTarget; // 추적 대상 레이어
+    #endregion
 
+    //추적할 대상을 코드로 통제할 생각이라 public으로 하지만 인스펙터창에서는 가림
+    [HideInInspector] public LivingEntity targetEntity;//추적할 대상
+    public LayerMask whatIsTarget;//적을 감지할 레이어필터
 
-    private RaycastHit[] hits = new RaycastHit[10];
+    private RaycastHit[] hits = new RaycastHit[10];//범위 기반 공격을 할거라 배열을 사용
+    //공격을 새로 시작할때마다 초기화시킬 리스트, 공격도중 직전 프레임까지 공격이 적용된 대상을 담아둠
     private List<LivingEntity> lastAttackedTargets = new List<LivingEntity>();
-    
+
+    //추적할 대상이 존재하는지 반환시키는 프로퍼티
     private bool hasTarget => targetEntity != null && !targetEntity.dead;
-    
 
+
+    //디버그용
 #if UNITY_EDITOR
-
     private void OnDrawGizmosSelected()
     {
         if (attackRoot != null)
         {
-            Gizmos.color = new Color(1f,0f,0f,0.5f);
+            Gizmos.color = new Color(1f, 0f, 0f, 0.5f);
             Gizmos.DrawSphere(attackRoot.position, attackRadius);
         }
 
@@ -68,9 +75,9 @@ public class Enemy : LivingEntity
         Handles.color = new Color(1f, 1f, 1f, 0.2f);
         Handles.DrawSolidArc(eyeTransform.position, Vector3.up, leftRayDirection, fieldOfView, viewDistance);
     }
-    
+
 #endif
-    
+
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -81,7 +88,7 @@ public class Enemy : LivingEntity
         attackDistance = Vector3.Distance(transform.position,
                              new Vector3(attackRoot.position.x, transform.position.y, attackRoot.position.z)) +
                          attackRadius;
-        
+
         attackDistance += agent.radius;
 
         agent.stoppingDistance = attackDistance;
@@ -99,9 +106,9 @@ public class Enemy : LivingEntity
         // 내비메쉬 에이전트의 이동 속도 설정
         this.runSpeed = runSpeed;
         this.patrolSpeed = patrolSpeed;
-        
+
         this.damage = damage;
-        
+
         // 렌더러가 사용중인 머테리얼의 컬러를 변경, 외형 색이 변함
         skinRenderer.material.color = skinColor;
     }
@@ -121,7 +128,7 @@ public class Enemy : LivingEntity
         {
             BeginAttack();
         }
-            
+
 
         // 추적 대상의 존재 여부에 따라 다른 애니메이션을 재생
         animator.SetFloat("Speed", agent.desiredVelocity.magnitude);
@@ -197,13 +204,13 @@ public class Enemy : LivingEntity
                     state = State.Patrol;
                     agent.speed = patrolSpeed;
                 }
-                
+
                 if (agent.remainingDistance <= 1f)
                 {
                     var patrolPosition = Utility.GetRandomPointOnNavMesh(transform.position, 20f, NavMesh.AllAreas);
                     agent.SetDestination(patrolPosition);
                 }
-                
+
                 // 20 유닛의 반지름을 가진 가상의 구를 그렸을때, 구와 겹치는 모든 콜라이더를 가져옴
                 // 단, whatIsTarget 레이어를 가진 콜라이더만 가져오도록 필터링
                 var colliders = Physics.OverlapSphere(eyeTransform.position, viewDistance, whatIsTarget);
@@ -241,7 +248,7 @@ public class Enemy : LivingEntity
         {
             targetEntity = damageMessage.damager.GetComponent<LivingEntity>();
         }
-            
+
         EffectManager.Instance.PlayHitEffect(damageMessage.hitPoint, damageMessage.hitNormal, transform, EffectManager.EffectType.Flesh);
         audioPlayer.PlayOneShot(hitClip);
 
@@ -259,14 +266,14 @@ public class Enemy : LivingEntity
     public void EnableAttack()
     {
         state = State.Attacking;
-        
+
         lastAttackedTargets.Clear();
     }
 
     public void DisableAttack()
     {
         state = State.Tracking;
-        
+
         agent.isStopped = false;
     }
 
@@ -287,7 +294,7 @@ public class Enemy : LivingEntity
         {
             if (hit.transform == target) return true;
         }
-        
+
         return false;
     }
 
@@ -306,7 +313,7 @@ public class Enemy : LivingEntity
         // 사망 애니메이션 재생
         animator.applyRootMotion = true;
         animator.SetTrigger("Die");
-        
+
         // 사망 효과음 재생
         if (deathClip != null) audioPlayer.PlayOneShot(deathClip);
     }
