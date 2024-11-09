@@ -768,11 +768,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 404f5febf5b004a1b8746235316d2bf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fireButtonName: Fire1
-  jumpButtonName: Jump
-  moveHorizontalAxisName: Horizontal
-  moveVerticalAxisName: Vertical
-  reloadButtonName: Reload
+  fireButton: Fire1
+  jumpButton: Jump
+  moveHorizontalAxis: Horizontal
+  moveVerticalAxis: Vertical
+  reloadButton: Reload
 --- !u!114 &3869448675542782456
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -788,7 +788,7 @@ MonoBehaviour:
   gun: {fileID: 3869448675614996719}
   excludeTarget:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
 --- !u!114 &3869448675542782461
 MonoBehaviour:
   m_ObjectHideFlags: 0
