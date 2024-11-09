@@ -13,17 +13,17 @@ public class Gun : MonoBehaviour
         Reloading // 재장전 중
     }
     public State state { get; private set; } // 현재 총의 상태
-    
+
     private PlayerShooter gunHolder;
     private LineRenderer bulletLineRenderer; // 총알 궤적을 그리기 위한 렌더러
-    
+
     private AudioSource gunAudioPlayer; // 총 소리 재생기
     public AudioClip shotClip; // 발사 소리
     public AudioClip reloadClip; // 재장전 소리
-    
+
     public ParticleSystem muzzleFlashEffect; // 총구 화염 효과
     public ParticleSystem shellEjectEffect; // 탄피 배출 효과
-    
+
     public Transform fireTransform; // 총알이 발사될 위치
     public Transform leftHandMount;
 
@@ -36,7 +36,7 @@ public class Gun : MonoBehaviour
 
     public float timeBetFire = 0.12f; // 총알 발사 간격
     public float reloadTime = 1.8f; // 재장전 소요 시간
-    
+
     [Range(0f, 10f)] public float maxSpread = 3f;
     [Range(1f, 10f)] public float stability = 1f;
     [Range(0.01f, 3f)] public float restoreFromRecoilSpeed = 2f;

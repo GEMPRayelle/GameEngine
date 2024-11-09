@@ -25,6 +25,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
+
         animator = GetComponent<Animator>();
         playerInput = GetComponent<PlayerInput>();
         followCam = Camera.main;
@@ -37,7 +38,7 @@ public class PlayerMovement : MonoBehaviour
 
         Move(playerInput.moveInput);
 
-        if (playerInput.jump) Jump();
+        //if (playerInput.jump) Jump();
     }
 
     private void Update()
@@ -70,11 +71,13 @@ public class PlayerMovement : MonoBehaviour
                                     ref turnSmoothVelocity, turnSmoothTime);
     }
 
+    #region 일단 추가 안함
     public void Jump()
     {
         if (!characterController.isGrounded) return;
         currentVelocityY = jumpVelocity;
     }
+    #endregion
 
     private void UpdateAnimation(Vector2 moveInput)
     {
