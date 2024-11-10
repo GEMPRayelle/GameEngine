@@ -30,15 +30,15 @@ public class EnemySpawner : MonoBehaviour
         if (enemies.Count <= 0) SpawnWave();
 
         // UI 갱신
-        UpdateUI();
+        //UpdateUI();
     }
 
     // 웨이브 정보를 UI로 표시
-    private void UpdateUI()
-    {
-        // 현재 웨이브와 남은 적의 수 표시
-        UIManager.Instance.UpdateWaveText(wave, enemies.Count);
-    }
+    // private void UpdateUI()
+    // {
+    //     // 현재 웨이브와 남은 적의 수 표시
+    //     UIManager.Instance.UpdateWaveText(wave, enemies.Count);
+    // }
 
     // 현재 웨이브에 맞춰 적을 생성
     private void SpawnWave()
