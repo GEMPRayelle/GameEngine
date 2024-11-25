@@ -289,7 +289,6 @@ public class Enemy : LivingEntity
 
     private bool IsTargetOnSight(Transform target)
     {
-
         //타겟의 위치로 향하는 방향벡터
         var direction = target.position - eyeTransform.position;
 
