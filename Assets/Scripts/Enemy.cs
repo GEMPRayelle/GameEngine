@@ -72,7 +72,8 @@ public class Enemy : LivingEntity
 
         var leftRayRotation = Quaternion.AngleAxis(-fieldOfView * 0.5f, Vector3.up);
         var leftRayDirection = leftRayRotation * transform.forward;
-        Handles.color = new Color(1f, 1f, 1f, 0.2f);
+        //Handles.color = new Color(1f, 1f, 1f, 0.2f);
+        Handles.color = Color.red;
         Handles.DrawSolidArc(eyeTransform.position, Vector3.up, leftRayDirection, fieldOfView, viewDistance);
     }
 #endif
