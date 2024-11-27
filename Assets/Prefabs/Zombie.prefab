@@ -585,7 +585,7 @@ MonoBehaviour:
   targetEntity: {fileID: 0}
   whatIsTarget:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
 --- !u!136 &964548705
 CapsuleCollider:
   m_ObjectHideFlags: 0

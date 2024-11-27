@@ -179,12 +179,9 @@ public class Enemy : LivingEntity
         }
     }
 
-    /// <summary> 
     /// 주기적으로 추적할 대상의 위치를 찾아 경로를 갱신하는 코루틴 함수
-    /// </summary>
     private IEnumerator UpdatePath()
     {
-        // 살아있는 동안 무한 루프
         while (!dead)
         {
             //추적할 타겟이 존재하고
@@ -230,7 +227,7 @@ public class Enemy : LivingEntity
                 foreach (var collider in colliders)
                 {
                     //상대가 시야 내에 없다면
-                    if (!IsTargetOnSight(collider.transform)) continue; //다음 회차로 넘어감
+                    if (!IsTargetOnSight(collider.transform)) break;
                     //시야 내에 들어왔으면 LivingEntity로서 가져올 수 있는지 검사
                     var livingEntity = collider.GetComponent<LivingEntity>();
 
@@ -290,6 +287,8 @@ public class Enemy : LivingEntity
 
     private bool IsTargetOnSight(Transform target)
     {
+        RaycastHit hit;
+
         //타겟의 위치로 향하는 방향벡터
         var direction = target.position - eyeTransform.position;
 
@@ -305,19 +304,14 @@ public class Enemy : LivingEntity
 
         //eye과 target사이에 가리는 장애물이 있는지 검사
         //direction을 원래 값으로 되돌려야한다
-        direction = target.position - eyeTransform.position;
-
-        RaycastHit hit;
+        //direction = target.position - eyeTransform.position;
 
         //시야각내에 존재하지만 다른 물체에 중간에 가려져서 보이지않는다면
         if (Physics.Raycast(eyeTransform.position, direction, out hit, viewDistance, whatIsTarget))
         {
             //광선에 닿은 물체가 처음 검사했던 상대방이맞다면
-            if (hit.transform == targetEntity)
-            {
-                //상대방과 눈 사이에 장애물이 없어서 상대방이 보이게된다
-                return true;
-            }
+            if (hit.transform == target) return true;
+            //상대방과 눈 사이에 장애물이 없어서 상대방이 보이게된다
         }
         return false;
     }
