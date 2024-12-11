@@ -44,6 +44,7 @@ public class PlayerHealth : LivingEntity
     public override bool ApplyDamage(DamageMessage damageMessage)
     {
         if (!base.ApplyDamage(damageMessage)) return false;
+        Debug.Log("Damage apply");
 
         EffectManager.Instance.PlayHitEffect(damageMessage.hitPoint, damageMessage.hitNormal, transform, EffectManager.EffectType.Flesh);
         playerAudioPlayer.PlayOneShot(hitClip);
