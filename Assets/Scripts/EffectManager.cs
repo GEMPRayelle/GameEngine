@@ -41,7 +41,6 @@ public class EffectManager : MonoBehaviour
         if (effectType == EffectType.Flesh)
         {
             targetPrefab = fleshHitEffect;
-            if (!vignetteCorutineEnable) { StartCoroutine(PlayHiteVignetteEffect()); }
         }
 
         var effect = Instantiate(targetPrefab, pos, Quaternion.LookRotation(normal));
@@ -52,7 +51,7 @@ public class EffectManager : MonoBehaviour
     }
 
 
-    IEnumerator PlayHiteVignetteEffect()
+    public IEnumerator PlayHiteVignetteEffect()
     {
         vignetteCorutineEnable = true;
         vignette.active = true;

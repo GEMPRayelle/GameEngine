@@ -48,7 +48,6 @@ public class PlayerHealth : LivingEntity
 
         EffectManager.Instance.PlayHitEffect(damageMessage.hitPoint, damageMessage.hitNormal, transform, EffectManager.EffectType.Flesh);
         playerAudioPlayer.PlayOneShot(hitClip);
-
         // LivingEntity의 OnDamage() 실행(데미지 적용)
         // 갱신된 체력을 체력 슬라이더에 반영
         UpdateUI();
