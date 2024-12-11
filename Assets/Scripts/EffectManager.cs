@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class EffectManager : MonoBehaviour
 {
@@ -21,6 +24,16 @@ public class EffectManager : MonoBehaviour
     public ParticleSystem commonHitEffect;
     public ParticleSystem fleshHitEffect;
 
+    private Volume volume;
+    private Vignette vignette;
+    bool vignetteCorutineEnable;
+
+    private void Start()
+    {
+        volume = GetComponent<Volume>();
+        volume.profile.TryGet(out vignette);
+    }
+
     public void PlayHitEffect(Vector3 pos, Vector3 normal, Transform parent = null, EffectType effectType = EffectType.Common)
     {
         var targetPrefab = commonHitEffect;
@@ -28,6 +41,7 @@ public class EffectManager : MonoBehaviour
         if (effectType == EffectType.Flesh)
         {
             targetPrefab = fleshHitEffect;
+            if (!vignetteCorutineEnable) { StartCoroutine(PlayHiteVignetteEffect()); }
         }
 
         var effect = Instantiate(targetPrefab, pos, Quaternion.LookRotation(normal));
@@ -35,5 +49,22 @@ public class EffectManager : MonoBehaviour
         if (parent != null) effect.transform.SetParent(parent);
 
         effect.Play();
+    }
+
+
+    IEnumerator PlayHiteVignetteEffect()
+    {
+        vignetteCorutineEnable = true;
+        vignette.active = true;
+        vignette.intensity.value = 1.0f;
+        for (float i = 0; vignette.intensity.value >= 0.01f;)
+        {
+            vignette.intensity.value -= 0.01f;
+            yield return new WaitForSeconds(0.008f);
+        }
+        vignette.active = false;
+        vignette.intensity.value = 0;
+        vignetteCorutineEnable = false;
+        yield return null;
     }
 }
