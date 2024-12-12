@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
@@ -48,22 +47,5 @@ public class EffectManager : MonoBehaviour
         if (parent != null) effect.transform.SetParent(parent);
 
         effect.Play();
-    }
-
-
-    public IEnumerator PlayHiteVignetteEffect()
-    {
-        vignetteCorutineEnable = true;
-        vignette.active = true;
-        vignette.intensity.value = 1.0f;
-        for (float i = 0; vignette.intensity.value >= 0.01f;)
-        {
-            vignette.intensity.value -= 0.01f;
-            yield return new WaitForSeconds(0.008f);
-        }
-        vignette.active = false;
-        vignette.intensity.value = 0;
-        vignetteCorutineEnable = false;
-        yield return null;
     }
 }
