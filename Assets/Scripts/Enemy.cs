@@ -119,8 +119,8 @@ public class Enemy : LivingEntity
     {
         if (dead) return;
 
+        //타겟과의 거리가 공격 사거리안에 들어오면
         if (state == State.Tracking &&
-            //타겟과의 거리가 공격 사거리안에 들어오면
             Vector3.Distance(targetEntity.transform.position, transform.position) <= attackDistance)
         {
             //공격시작
