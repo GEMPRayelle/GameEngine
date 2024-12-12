@@ -63,15 +63,15 @@ public class PlayerShooter : MonoBehaviour
         {
             Shoot();
         }
-        else if (playerInput.reload)
-        {
-            Reload();
-        }
     }
 
     private void Update()
     {
         UpdateAimTarget();
+        if (playerInput.reload)
+        {
+            Reload();
+        }
 
         var angle = playerCamera.transform.eulerAngles.x;
         if (angle > 270f) angle -= 360f;
