@@ -4,6 +4,24 @@ using UnityEngine;
 
 public class MissionManager : MonoBehaviour
 {
+    private static MissionManager instance; // 싱글톤이 할당될 static 변수
+
+    // 외부에서 싱글톤 오브젝트를 가져올때 사용할 프로퍼티
+    public static MissionManager Instance
+    {
+        get
+        {
+            if (instance == null)
+                instance = FindObjectOfType<MissionManager>();
+
+            return instance;
+        }
+    }
+    private void Awake()
+    {
+        // 씬에 싱글톤 오브젝트가 된 다른 MissionManager 오브젝트가 있다면 자신을 파괴
+        if (Instance != this) Destroy(gameObject);
+    }
     // 미션 컨트롤
     // 스타디움까지 좀비를 처치하면서 간 다음
     // 스타디움에서 2분동안 공성전
@@ -16,7 +34,7 @@ public class MissionManager : MonoBehaviour
     // 헬기는 이동하며 도시를 탈출하는 씬 호출
     // 이후 게임오버
 
-    bool is_Stadium; // 스타디움까지 도착했는가
+    public bool is_Stadium; // 스타디움까지 도착했는가
     bool is_StadiumDef; // 스타디움에서 버티는데 성공하였는가
 
     float stadiumDefTime = 180;
@@ -25,15 +43,20 @@ public class MissionManager : MonoBehaviour
     void Start()
     {
         checkTime = 0;
+        is_Stadium = false;
+        is_StadiumDef = false;
     }
 
     
     void Update()
     {
-        
+        if (is_Stadium)
+        {
+            Stadium_Defense();
+        }
     }
 
-    void Stadium_Defense()
+    void Stadium_Defense() // 스타디움 디펜스
     {
         checkTime += Time.deltaTime;
         if (checkTime >= stadiumDefTime)
