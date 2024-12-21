@@ -9,8 +9,10 @@ public class Stage2TriggerControl : MonoBehaviour
         
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider col)
     {
+        Debug.Log(col.gameObject.name);
+        if (col.gameObject.tag == "Player")
         MissionManager.Instance.is_Stadium = true;
     }
 }

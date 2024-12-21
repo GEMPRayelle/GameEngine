@@ -23,6 +23,7 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] private Text healthText;
     [SerializeField] private Text ammoText;
+    [SerializeField] private Text timeText;
 
     // 데미지 이펙트용
     [SerializeField] GameObject hitEffect;
@@ -43,6 +44,10 @@ public class UIManager : MonoBehaviour
     public void UpdateCrossHairPosition(Vector3 worldPosition)
     {
         crosshair.UpdatePosition(worldPosition);
+    }
+    public void UpdateTimeText(int min, int sec)
+    {
+        timeText.text = min + ":" + sec;
     }
 
     public void UpdateHealthText(float health)

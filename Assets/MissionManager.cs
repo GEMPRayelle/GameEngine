@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -35,14 +36,15 @@ public class MissionManager : MonoBehaviour
     // 이후 게임오버
 
     public bool is_Stadium; // 스타디움까지 도착했는가
-    bool is_StadiumDef; // 스타디움에서 버티는데 성공하였는가
+    public bool is_StadiumDef; // 스타디움에서 버티는데 성공하였는가
+    public bool is_Clear; // 헬기 탑승 했는가
 
     float stadiumDefTime = 180;
     float checkTime;
 
     void Start()
     {
-        checkTime = 0;
+        checkTime = stadiumDefTime;
         is_Stadium = false;
         is_StadiumDef = false;
     }
@@ -58,8 +60,9 @@ public class MissionManager : MonoBehaviour
 
     void Stadium_Defense() // 스타디움 디펜스
     {
-        checkTime += Time.deltaTime;
-        if (checkTime >= stadiumDefTime)
+        checkTime -= Time.deltaTime;
+        UIManager.Instance.UpdateTimeText(Convert.ToInt32(checkTime / 60), Convert.ToInt32(checkTime % 60));
+        if (checkTime <= 0)
         {
             is_StadiumDef = true;
         }
